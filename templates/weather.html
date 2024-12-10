@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Weather Information</title>
+</head>
+<body>
+    <h1>Weather Information</h1>
+    {% if weather_data %}
+        <p>Temperature: {{ weather_data.temperature }} °C</p>
+        <p>Humidity: {{ weather_data.humidity }}%</p>
+        <p>Description: {{ weather_data.description }}</p>
+    {% else %}
+        <p>No weather data available.</p>
+    {% endif %}
+    <p><a href="/dashboard">Back to Dashboard</a></p>
+</body>
+</html>

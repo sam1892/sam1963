@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <style>
+        img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 20px auto;
+        }
+        #charts img {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Dashboard</h1>
+
+    <!-- Maintenance Alerts -->
+    <h2>Maintenance Alerts</h2>
+    <ul>
+        {% for alert in alerts %}
+            <li>{{ alert }}</li>
+        {% endfor %}
+    </ul>
+
+    <!-- Technician Schedule -->
+    <h2>Technician Schedule</h2>
+    <ul>
+        {% for technician in technicians %}
+            <li>{{ technician.name }} - {{ technician.schedule }}</li>
+        {% endfor %}
+    </ul>
+
+    <!-- Predictions -->
+    <h2>Predictions</h2>
+    <ul>
+        {% for prediction in predictions %}
+            <li>{{ prediction }}</li>
+        {% endfor %}
+    </ul>
+
+    <!-- Cost Analysis -->
+    <h2>Cost Analysis</h2>
+    <p>Total Repair Cost: ${{ repair_cost }}</p>
+
+    <!-- Efficiency Metrics -->
+    <h2>Efficiency Metrics</h2>
+    <ul>
+        {% for efficiency in efficiency_metrics %}
+            <li>{{ efficiency }}</li>
+        {% endfor %}
+    </ul>
+
+    <!-- Improvement Metrics -->
+    <h2>Improvement Metrics</h2>
+    <ul>
+        {% for key, value in improvement_metrics.items() %}
+            <li>{{ key | capitalize }} Improvement: {{ value }}</li>
+        {% endfor %}
+    </ul>
+
+    <!-- Dropdown for Charts -->
+    <h2>Select a Chart</h2>
+    <select id="chartSelector" onchange="showChart()">
+        <option value="heatmap">Heatmap</option>
+        <option value="scatter">Scatter Plot</option>
+        <option value="bar_chart">Bar Chart</option>
+        <option value="pie_chart">Pie Chart</option>
+        <option value="efficiency_line">Efficiency Line Chart</option>
+        <option value="improvement_bar">Improvement Metrics Bar Chart</option>
+    </select>
+
+    <!-- Chart Display Area -->
+    <div id="charts">
+        <img id="heatmap" src="{{ heatmap }}" alt="Heatmap">
+        <img id="scatter" src="{{ scatter }}" alt="Scatter Plot">
+        <img id="bar_chart" src="{{ bar_chart }}" alt="Bar Chart">
+        <img id="pie_chart" src="{{ pie_chart }}" alt="Pie Chart">
+        <img id="efficiency_line" src="{{ efficiency_line }}" alt="Efficiency Line Chart">
+        <img id="improvement_bar" src="{{ improvement_bar }}" alt="Improvement Metrics Bar Chart">
+    </div>
+
+    <!-- JavaScript to Handle Chart Display -->
+    <script>
+        function showChart() {
+            let charts = document.querySelectorAll("#charts img");
+            charts.forEach(chart => chart.style.display = "none");
+            let selectedChart = document.getElementById(document.getElementById("chartSelector").value);
+            if (selectedChart) {
+                selectedChart.style.display = "block";
+            }
+        }
+        document.addEventListener("DOMContentLoaded", () => {
+            document.getElementById("heatmap").style.display = "block";
+        });
+    </script>
+
+    <p><a href="/logout">Logout</a></p>
+</body>
+</html>

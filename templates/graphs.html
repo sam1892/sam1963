@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Graphs</title>
+</head>
+<body>
+    <h1>Graphs</h1>
+    <form method="POST" action="/graphs">
+        <label for="graph_type">Choose a graph:</label>
+        <select name="graph_type" id="graph_type">
+            <option value="Heatmap">Heatmap</option>
+            <option value="Scatter Plot">Scatter Plot</option>
+        </select>
+        <button type="submit">Generate Graph</button>
+    </form>
+    {% if graph_url %}
+        <h2>Generated Graph</h2>
+        <img src="{{ graph_url }}" alt="Generated Graph">
+    {% endif %}
+    <p><a href="/dashboard">Back to Dashboard</a></p>
+</body>
+</html>
