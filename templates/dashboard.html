@@ -1,12 +1,238 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>PMSWT Dashboard</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wind Turbine Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #e9f7ef;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1, h2 {
+            color: #1abc9c;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        ul li {
+            background: #f0f0f0;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        ul li span {
+            font-weight: bold;
+            color: #16a085;
+        }
+
+        select, textarea, button {
+            font-size: 16px;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            display: block;
+            width: 100%;
+        }
+
+        select:hover, button:hover, textarea:hover {
+            border-color: #1abc9c;
+        }
+
+        textarea {
+            resize: none;
+            height: 100px;
+        }
+
+        button {
+            background: #1abc9c;
+            color: white;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #149b77;
+        }
+
+        #charts img {
+            display: none;
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        #charts img.active {
+            display: block;
+        }
+
+        .chart-container {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .details-container {
+            background: #ffffff;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .details-container h3 {
+            color: #1abc9c;
+        }
+
+        a {
+            color: #1abc9c;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
-    <h1>Wind Turbine Monitoring Dashboard</h1>
-    <p>Real-time Data Ingestion and Visualization for Wind Turbine Health Monitoring</p>
-    <p><a href="/heatmap">View Correlation Heatmap</a></p>
-    <p><a href="/forecast">Forecast Temperature</a></p>
+    <h1>Wind Turbine Dashboard</h1>
+
+    <!-- Maintenance Alerts -->
+    <h2>Maintenance Alerts</h2>
+    <ul>
+        {% for alert in alerts %}
+            <li>{{ alert.alert }} - <span>Assigned Technician: {{ alert.technician }}</span></li>
+        {% endfor %}
+    </ul>
+
+    <!-- Technician Schedule -->
+    <h2>Technician Schedule</h2>
+    <ul>
+        {% for technician in technicians %}
+            <li>{{ technician.name }} - <span>{{ technician.schedule }}</span></li>
+        {% endfor %}
+    </ul>
+
+    <!-- Turbine Information -->
+    <h2>Wind Turbines</h2>
+    <select id="turbineSelector" onchange="showTurbineInfo()">
+        <option value="" disabled selected>Select a Turbine</option>
+        {% for turbine in turbine_info %}
+            <option value="{{ turbine.id }}">{{ turbine.name }}</option>
+        {% endfor %}
+    </select>
+
+    <div id="turbineDetails" class="details-container">
+        <!-- Turbine details will populate dynamically -->
+        <p>Select a turbine to view details.</p>
+    </div>
+
+    <!-- Predictions -->
+    <h2>Predictions</h2>
+    <ul>
+        {% for prediction in predictions %}
+            <li>{{ prediction }}</li>
+        {% endfor %}
+    </ul>
+
+    <!-- Cost Analysis -->
+    <h2>Cost Analysis</h2>
+    <p>Total Repair Cost: <span>${{ repair_cost }}</span></p>
+
+    <!-- Efficiency Metrics -->
+    <h2>Efficiency Metrics</h2>
+    <ul>
+        {% for efficiency in efficiency_metrics %}
+            <li>{{ efficiency }}</li>
+        {% endfor %}
+    </ul>
+
+    <!-- Improvement Metrics -->
+    <h2>Improvement Metrics</h2>
+    <ul>
+        {% for key, value in improvement_metrics.items() %}
+            <li>{{ key | capitalize }} Improvement: {{ value }}</li>
+        {% endfor %}
+    </ul>
+
+    <!-- Dropdown for Charts -->
+    <h2>Select a Chart</h2>
+    <select id="chartSelector" onchange="showChart()">
+        <option value="heatmap">Heatmap</option>
+        <option value="scatter">Scatter Plot</option>
+        <option value="bar_chart">Bar Chart</option>
+        <option value="pie_chart">Pie Chart</option>
+        <option value="efficiency_line">Efficiency Line Chart</option>
+        <option value="improvement_bar">Improvement Metrics Bar Chart</option>
+    </select>
+
+    <div class="chart-container" id="charts">
+        <img id="heatmap" src="{{ heatmap }}" alt="Heatmap">
+        <img id="scatter" src="{{ scatter }}" alt="Scatter Plot">
+        <img id="bar_chart" src="{{ bar_chart }}" alt="Bar Chart">
+        <img id="pie_chart" src="{{ pie_chart }}" alt="Pie Chart">
+        <img id="efficiency_line" src="{{ efficiency_line }}" alt="Efficiency Line Chart">
+        <img id="improvement_bar" src="{{ improvement_bar }}" alt="Improvement Metrics Bar Chart">
+    </div>
+
+    <!-- Feedback Section -->
+    <h2>Customer Feedback</h2>
+    <form method="POST" action="/feedback">
+        <textarea name="feedback" placeholder="Enter your feedback here" required></textarea>
+        <button type="submit">Submit Feedback</button>
+    </form>
+    <ul>
+        {% for feedback in feedback_store %}
+            <li>{{ feedback }}</li>
+        {% endfor %}
+    </ul>
+
+    <!-- Logout Link -->
+    <p><a href="/logout">Logout</a></p>
+
+    <!-- JavaScript -->
+    <script>
+        function showChart() {
+            const charts = document.querySelectorAll("#charts img");
+            charts.forEach(chart => chart.classList.remove("active"));
+            const selectedChart = document.getElementById(document.getElementById("chartSelector").value);
+            if (selectedChart) {
+                selectedChart.classList.add("active");
+            }
+        }
+
+        function showTurbineInfo() {
+            const turbines = {{ turbine_info|safe }};
+            const selectedTurbineId = document.getElementById("turbineSelector").value;
+            const selectedTurbine = turbines.find(t => t.id === selectedTurbineId);
+            const turbineDetailsDiv = document.getElementById("turbineDetails");
+
+            if (selectedTurbine) {
+                turbineDetailsDiv.innerHTML = `
+                    <h3>${selectedTurbine.name}</h3>
+                    <p>Location: ${selectedTurbine.location}</p>
+                    <p>Status: ${selectedTurbine.status}</p>
+                    <p>Last Inspection: ${selectedTurbine.lastInspection}</p>
+                    <p>Next Planned Maintenance: ${selectedTurbine.nextMaintenance}</p>
+                `;
+            } else {
+                turbineDetailsDiv.innerHTML = `<p>Select a turbine to view details.</p>`;
+            }
+        }
+    </script>
 </body>
 </html>
